@@ -1,10 +1,10 @@
 ---
 permalink: /posts/
-title: 
-excerpt: 
+
 author_profile: true
 redirect_from: /blog/
 ---
+
 
 ## Computer Vision
 
