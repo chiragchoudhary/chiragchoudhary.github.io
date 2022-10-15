@@ -1,7 +1,7 @@
 ---
 title: 'A walk-through on Neural Style Transfer'
 date: 2022-10-09
-permalink: /posts/measure_theory_1/
+permalink: /posts/nst/
 tags:
   - Deep Learning
   - NST
