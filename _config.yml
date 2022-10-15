@@ -7,7 +7,7 @@
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Chirag Chodhary"
+title                    : "Chirag Choudhary"
 title_separator          : "-"
 name                     : &name "Chirag Choudhary"
 description              : &description "ML Engineer at Qualcomm"
