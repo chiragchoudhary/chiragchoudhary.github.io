@@ -1,7 +1,7 @@
 ---
 permalink: /posts/
-title: "Blog Posts"
-excerpt: "This is a page not in th emain menu"
+title: 
+excerpt: 
 author_profile: true
 redirect_from: /blog/
 ---
