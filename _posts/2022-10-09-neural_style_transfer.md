@@ -7,8 +7,9 @@ tags:
   - NST
 ---
 <style>
-img {
-height: 150px
+p > img {
+height: 150px;
+margin-bottom:5px;
 }
 </style>
 In the very first post on this blog, we look at application of deep learning to the area of style transfer, popularly known as Neural Style Transfer.
@@ -200,7 +201,7 @@ save_animation()
 
 Here are some examples of three different styles applied to two different content images:
 
-<p align="center">
+<p align="center" style="min-width:620px">
 <img src="{{site.url}}/images/nst/waves_resize.png" height=220px>
 <img src="{{ site.url }}/images/nst/autumn_road_and_waves.png" height="250px" style="margin-left: 0px">
 <img src="{{ site.url }}/images/nst/taj_mahal_and_waves.png" height="250px" style="margin-left: 0px">
