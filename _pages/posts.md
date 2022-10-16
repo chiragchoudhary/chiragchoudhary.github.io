@@ -1,11 +1,11 @@
 ---
 permalink: /posts/
-
+collection: Posts
 author_profile: true
 redirect_from: /blog/
 ---
 
+<h3>Computer Vision</h3>
+<br>
 
-## Computer Vision
-
-[A walk-through on Neural Style Transfer](https://choudharyc.github.io/posts/neural_style_transfer/)
+[A walk-through on Neural Style Transfer]({{site.url}}/posts/neural_style_transfer/)
