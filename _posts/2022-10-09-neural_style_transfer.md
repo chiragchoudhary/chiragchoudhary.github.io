@@ -222,15 +222,32 @@ Here are some examples of three different styles applied to two different conten
 ### Content Reconstruction
 If we set the total loss to content loss only, the model simply reconstructs the content image. The final image reconstructed is the same, regardless of which layer we choose as our content feature layer.
 
-### Style Reconstruction
+The following animation shows the content reconstruction when using block2_conv2 VGG layer for content features:
 
+<p align="center">
+<img src="{{site.url}}/images/nst/autumn_road_and_waves_content_b2c2.gif" style="height: 250px">
+</p>
+
+### Style Reconstruction
+Similarly, if we set the total loss to style loss only, the model generates an output which only has the stylist components of the style image, without any structure.
+
+<p align="center">
+<img src="{{site.url}}/images/nst/autumn_road_and_waves_style.gif" style="height: 250px">
+</p>
 
 ### Tuning the style weight
 By varying the style weight relative to the content weight, we can control how much style we want to add to the content image.
+<p align="center">
+<img src="{{site.url}}/images/nst/style_4.png" style="height: 150px">
+<img src="{{site.url}}/images/nst/style_3.png" style="height: 150px">
+<img src="{{site.url}}/images/nst/style_2.png" style="height: 150px">
+<img src="{{site.url}}/images/nst/style_1.png" style="height: 150px">
+</p>
 
+<!--
 ### Tuning the total variance weight
 Similarly, by changing the total variance weight, we can control how smooth we want the final image to look.
-
+-->
 ### Hardware Specs
 - CPU: 	AMD Ryzen 9 5900X 3.7 GHz 12-Core Processor
 - GPU: NVIDIA Geforce RTX 3080 10GB
