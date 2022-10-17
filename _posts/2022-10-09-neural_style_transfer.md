@@ -16,7 +16,7 @@ In the very first post on this blog, we look at application of deep learning to 
 This tutorial assumes basic knowledge of CNNs and the Tensorflow/Keras python libraries.
     
 ## Introduction
-The aim of Neural Style Transfer (NST) is to embed the style of an image (aka style image) onto a base image (aka content image). It was proposed by Leon A. Gatys et al. in their 2015 paper *A Neural Algorithm of Artistic Style*. The idea is similar to CycleGANs, which also transposes images between two style domains. However, in NST, we don't have a training set, but instead we work with just two images. In terms of training, it means that we optimize the combined image rather than optimizing the weights of an ML model.
+The aim of Neural Style Transfer (NST) is to embed the style of an image (aka style image) onto a base image (aka content image). It was proposed by Leon A. Gatys et al. in their 2015 paper *[A Neural Algorithm of Artistic Style](https://arxiv.org/abs/1508.06576)*. The idea is similar to CycleGANs, which also transposes images between two style domains. However, in NST, we don't have a training set, but instead we work with just two images. In terms of training, it means that we optimize the combined image rather than optimizing the weights of an ML model.
 
 <p align="center">
 <img src="{{ site.url }}/images/nst/big_ben.jpg" style="height:200px">
@@ -220,7 +220,7 @@ Here are some examples of three different styles applied to two different conten
 </p>
 
 ### Content Reconstruction
-If we set the total loss to content loss only, the model simply reconstructs the content image. The final image reconstructed is the same, regardless of which layer we choose as our content feature layer.
+If we initialize the combined image to random noise and set the total loss to content loss only, the model simply reconstructs the content image. The final image reconstructed is the same, regardless of which layer we choose as our content feature layer.
 
 The following animation shows the content reconstruction when using block2_conv2 VGG layer for content features:
 
@@ -229,19 +229,20 @@ The following animation shows the content reconstruction when using block2_conv2
 </p>
 
 ### Style Reconstruction
-Similarly, if we set the total loss to style loss only, the model generates an output which only has the stylist components of the style image, without any structure.
+Similarly, if we initialize the combined image to random noise and set the total loss to style loss only, the model generates an output which only has the stylist components of the style image, without any particular structure.
 
 <p align="center">
 <img src="{{site.url}}/images/nst/autumn_road_and_waves_style.gif" style="height: 250px">
 </p>
 
 ### Tuning the style weight
-By varying the style weight relative to the content weight, we can control how much style we want to add to the content image.
+By varying the style weight relative to the content weight, we can control how much style we want to add to the content image. Here, the image is initialized as the content image, the content weight is fixed at 1e-5, and the style weight values are incremented in multiples of 10 (1e-5, 1e-4, 1e-3, and 1e-2).
+
 <p align="center">
-<img src="{{site.url}}/images/nst/style_4.png" style="height: 150px">
-<img src="{{site.url}}/images/nst/style_3.png" style="height: 150px">
-<img src="{{site.url}}/images/nst/style_2.png" style="height: 150px">
-<img src="{{site.url}}/images/nst/style_1.png" style="height: 150px">
+<img src="{{site.url}}/images/nst/style_4.png" style="height: 200px">
+<img src="{{site.url}}/images/nst/style_3.png" style="height: 200px">
+<img src="{{site.url}}/images/nst/style_2.png" style="height: 200px">
+<img src="{{site.url}}/images/nst/style_1.png" style="height: 200px">
 </p>
 
 <!--
