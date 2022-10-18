@@ -5,6 +5,8 @@ author_profile: true
 redirect_from: /blog/
 ---
 
-<h3>Computer Vision</h3>
-<br>
+<h2>Computer Vision</h2>
+
 [A walk-through on Neural Style Transfer]({{site.url}}/posts/neural_style_transfer/)
+
+[Generating MNIST digits using Conditional GANs]({{site.url}}/posts/mnist_cgan/)
