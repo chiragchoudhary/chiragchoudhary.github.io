@@ -40,19 +40,19 @@ This means that two images which have very similar contents should also have sim
 
 ### Style Loss
 
-We can describe style of an image in terms of the textures, colors and patterns that exist in the image. For example, we can make some remarks about the style of this image:
+We can describe style of an image in terms of features such as textures, colors and patterns that exist in the image. For example, we can make some remarks about the style of this image:
 <p align="center">
     <img src="{{site.url}}/images/nst/starry_night_resize.jpg" style="height: 300px">
 </p>
 - blue and yellow areas are covered in circular brushstrokes
 - dark areas are covered in vertical brushstrokes
-- light green areas are covered in free-form/wavy brushstrokes
+- light green areas are covered in wavy brushstrokes
 
 The intuition behind ConvNets is that different activation maps of a given layer capture different features at the same spatial level in the input image. For instance, one activation map could have high activations for areas of image which have green color, whereas another activation map could activate when it detects vertical strokes. When combined, the two activation maps could allow the next layer to detect grass, a more abstract feature than both color green or vertical strokes.
 
-The NST paper suggests that the style of an image captured by the correlations between different activation maps within layers for both low-level layers and high-level layers. For each layer, we compute a matrix of inner product of the activation maps in that layer. This matrix is known as a *gram matrix*. The style loss for a layer is then defined as the L2 norm of the gram matrix of layer activations for the style image and the combined image. The overall style loss is the weighed sum of L2 losses for multiple layers.
+The NST paper suggests that the style of an image can be captured by the correlations between different activation maps within layers for both low-level layers and high-level layers. For each layer, we compute a matrix of inner product of the activation maps within that layer. This matrix is known as a *gram matrix*. The loss for a layer is then defined as the L2 norm of the gram matrix of layer activations for the style image and the combined image. The overall style loss is the weighed sum of L2 losses for multiple layers.
 
-Intuitively, if the algorithm sees that two style attributes are correlated in the style image, then they should be similarly correlated in the combined image. We see this effect in the output image, where the algorithm added circular brushstrokes to the blue and yellow colored areas of the content image, and grassy vertical brushstrokes to dark regions of the content image. Similarly, it will add bright blue lines (texture) to the blue regions of the content image.
+Intuitively, if the algorithm sees that two style features are correlated in the style image, then it pushes them to be similarly correlated in the combined image. We see this effect in the output image, where the algorithm added circular brushstrokes to the blue and yellow colored areas of the content image, and grassy vertical brushstrokes to dark regions of the content image.
 
 ### Total Variance Loss
 The total variance loss represents the noise in our combined image. This loss allows us to tune the amount of smoothness in the output. To measure noise, we compute the MSE between neighboring pixels in the combined image. For each pixel, we need to add the square of difference with the pixel value on its right as well as its bottom. Both of these operations can be performed for all pixels simultaneously by shift the image one pixel right (or down) and taking difference with the original image. 
@@ -91,14 +91,14 @@ from utils import deprocess_image, save_animation
 ```
 
 ### Define Parameters
-The weights of the three loss functions siginificantly affect the final constructed image. For my experiments, I tried multiple combinations of weights in the following ranges:
+The weights of the three loss functions significantly affect the final constructed image. In my experiments, I tried multiple combinations of weights in the following ranges:
 - Content loss weight (fixed): 1e-5 
 - Style loss: \[1e-2, 1e-5\]
 - Total variance loss: \[1e-6, 1e-8\]
 
-The *init_method* allows us to initialize the final image output with the content image, style image, or random noise. Initializing with the content image gave the most visually pleasant results.
+The *init_method* allows us to initialize the final image output with the content image, style image, or random noise. Initializing with the content image gave the most visually pleasing results.
 
-The *reconstruction_type* parameter allows us to selectively reconstruct the content image or the style components of the style image. Initially I had difficulties generating good output with the combined loss function, so I used this feature primarily to debug my code. It ensured that both my loss functions were individually working as expected, and I realized I needed to work on tuning the loss weights.
+The *reconstruction_type* parameter allows us to selectively reconstruct the content image or the style features of the style image. Initially I had difficulties generating good output with the combined loss function, so I used this feature primarily to debug my code. Training with just the content loss and the style losses helped me ensure that both loss functions were individually working as expected, and I needed to work on tuning the loss weights.
 
 ```python
 content_loss_weight = 1e-5
@@ -177,6 +177,7 @@ def style_loss_fn(style_img, combined_img):
 ```
 
 ### Optimizer
+I tried both Adam and SGD, but got better results with Adam in most cases. The original paper used L-BFGS.
 ```python
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, beta_1=0.5)
 ```
@@ -279,14 +280,14 @@ The following animation shows the content reconstruction when using block2_conv2
 </p>
 
 ### Style Reconstruction
-Similarly, if we initialize the combined image to random noise and set the total loss to style loss only, the model generates an output which only has the stylist components of the style image, without any particular structure.
+Similarly, if we initialize the combined image to random noise and set the total loss to style loss only, the model generates an output which only has the stylist features of the style image, without any particular spatial order.
 
 <p align="center">
 <img src="{{site.url}}/images/nst/autumn_road_and_waves_style.gif" style="height: 250px">
 </p>
 
 ### Tuning the style weight
-By varying the style weight relative to the content weight, we can control how much style we want to add to the content image. Here, the image is initialized as the content image, the content weight is fixed at 1e-5, and the style weight values are incremented in multiples of 10 (1e-5, 1e-4, 1e-3, and 1e-2).
+By varying the style loss weight relative to the content loss weight, we can control how much style we want to add to the content image. Here, the combined image is initialized to content image, the content loss weight is fixed at 1e-5, and the style loss weight values are incremented in multiples of 10 (1e-5, 1e-4, 1e-3, and 1e-2).
 
 <p align="center">
 <img src="{{site.url}}/images/nst/style_4.png" style="height: 200px">
