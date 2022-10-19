@@ -1,6 +1,6 @@
 ---
 title: 'Generating MNIST digits using Conditional GANs'
-date: 2022-10-17
+date: 2022-10-23
 permalink: /posts/mnist_cgan/
 tags:
   - Deep Learning
@@ -14,4 +14,8 @@ Note: This post is a WIP
 
 In this post, we see what conditional GANs are and how to train one to generate MNIST handwritten digits conditioned on the input labels.
 
-## Theory
+## Implementation
+
+## Results
+
+## References
