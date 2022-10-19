@@ -15,7 +15,7 @@ margin-bottom:5px;
 </style>
 In the very first post on this blog, we look at application of deep learning to the area of style transfer, popularly known as Neural Style Transfer.
 This tutorial assumes basic knowledge of CNNs and the Tensorflow/Keras python libraries.
-    
+
 ## Introduction
 The aim of Neural Style Transfer (NST) is to embed the style of an image (aka style image) onto a base image (aka content image). It was proposed by Leon A. Gatys et al. in their 2015 paper *[A Neural Algorithm of Artistic Style](https://arxiv.org/abs/1508.06576)*. The idea is similar to CycleGANs, which also transposes images between two style domains. However, in NST, we don't have a training set, but instead we work with just two images. In terms of training, it means that we optimize the combined image rather than optimizing the weights of an ML model.
 
@@ -30,22 +30,32 @@ The aim of Neural Style Transfer (NST) is to embed the style of an image (aka st
 The transformed image needs to adopt the style of the style image while conserving the contents of the content image. To achieve this style transform, the algorithm represents these two properties mathematically via loss functions:
 
 ### Content Loss
-The various activations maps of a ConvNet capture different information about the input image. The activation maps in earlier layers capture more local information about the image, such as edges, colors, etc., whereas the activation maps in deeper layers capture more global/abstract information about the input, such as the class of the object. This means that two images which have very similar contents should also have similar activation values for the upper layers. For an input image, the content is defined as the activation values for a deeper layer of a pre-trained ConvNet. The content loss is then an L2 norm between the activations of that layer, computed over the final output, and the activations of the same layer computed for our content image. The layer chosen to represent the contents of an image is a hyper-parameter of our algorithm. We use a pre-trained VGG-19 for our activations.
+The various activations maps of a ConvNet capture different information about the input image. The activation maps in earlier layers capture more local information about the image, such as edges, colors, etc., whereas the activation maps in deeper layers capture more global/abstract information about the input, such as the class of the object. 
+<p align="center">
+    <img src="{{site.url}}/images/nst/conv_activations_layer2.png" style="height: 250px">
+    <img src="{{site.url}}/images/nst/conv_activations_layer5.png" style="height: 250px">
+    <p style="text-align:center">Fig. Visualizing the first four channels of activations of VGG layers <i>block2_conv2</i> and <i>block5_conv2</i></p>
+</p>
+This means that two images which have very similar contents should also have similar activation values for the upper layers. For an input image, the content is defined as the activation values for a deeper layer of a pre-trained ConvNet. The content loss is then an L2 norm between the activations of that layer computed for the final output, and the activations of the same layer computed for our content image. The layer chosen to represent the contents of an image is a hyperparameter of our algorithm. We use a pre-trained VGG-19 to obtain activations.
 
 ### Style Loss
 
-Consider the style image show above. We can make some reasonable remarks about the style of the image:
+We can describe style of an image in terms of the textures, colors and patterns that exist in the image. For example, we can make some remarks about the style of this image:
+<p align="center">
+    <img src="{{site.url}}/images/nst/starry_night_resize.jpg" style="height: 300px">
+</p>
+- blue and yellow areas are covered in circular brushstrokes
+- dark areas are covered in vertical brushstrokes
+- light green areas are covered in free-form/wavy brushstrokes
 
+The intuition behind ConvNets is that different activation maps of a given layer capture different features at the same spatial level in the input image. For instance, one activation map could have high activations for areas of image which have green color, whereas another activation map could activate when it detects vertical strokes. When combined, the two activation maps could allow the next layer to detect grass, a more abstract feature than both color green or vertical strokes.
 
-The intuition behind ConvNets is that different activation maps of a given layer capture different features at the same spatial level in the input image. For instance, one activation map has high activations for areas of image which have green color, whereas another activation map could activate when it detects spikes. Both the activation maps combined allow the layer to detect grass, a more abstract feature than both green or spikes.
+The NST paper suggests that the style of an image captured by the correlations between different activation maps within layers for both low-level layers and high-level layers. For each layer, we compute a matrix of inner product of the activation maps in that layer. This matrix is known as a *gram matrix*. The style loss for a layer is then defined as the L2 norm of the gram matrix of layer activations for the style image and the combined image. The overall style loss is the weighed sum of L2 losses for multiple layers.
 
-The original papers suggests that the style of an image can be represented by the correlations between different activation maps across multiple layers. For each layer, we compute a matrix of correlation of a pair of activation maps in that layer. This matrix is known as a *gram matrix*. The style loss for a layer is then defined as the L2 norm of the gram matrix of activations for the style image, and the gram matrix for the same layer for the combined image. The overall style loss is the normalized sum of style losses for multiple layers.
-
-Intuitively, based on the above example of style image, the algorithm will add yellow colored rings to spherical areas of the content image, and grassy texture to dark areas of the content image. Similarly, it will add bright blue lines (texture) to the blue regions of the content image. This ensures that the activation maps which activate on blue color and blue line texture are highly correlated for both the style image as well as the combined image.
-
+Intuitively, if the algorithm sees that two style attributes are correlated in the style image, then they should be similarly correlated in the combined image. We see this effect in the output image, where the algorithm added circular brushstrokes to the blue and yellow colored areas of the content image, and grassy vertical brushstrokes to dark regions of the content image. Similarly, it will add bright blue lines (texture) to the blue regions of the content image.
 
 ### Total Variance Loss
-The total variance loss represents the noise in our combined image output. This loss allows us to tune the amount of smoothness in the output. To measure noise, we shift the image one pixel down and calculate the sum of squared difference (SSD) between the shifted and original image. We repeat the same procedure, but shift the image one pixel to the right. Note that when we compute the SSD, we compute it over the overlapping patches (size (M-1)x(N-1)) between the shifted and original image.
+The total variance loss represents the noise in our combined image. This loss allows us to tune the amount of smoothness in the output. To measure noise, we compute the MSE between neighboring pixels in the combined image. For each pixel, we need to add the square of difference with the pixel value on its right as well as its bottom. Both of these operations can be performed for all pixels simultaneously by shift the image one pixel right (or down) and taking difference with the original image. 
 
 The algorithm optimizes the total loss, which is a weighted sum of the three losses. By varying the relative weights, we can modify the style of the final combined image.
 ## Implementation
@@ -81,6 +91,15 @@ from utils import deprocess_image, save_animation
 ```
 
 ### Define Parameters
+The weights of the three loss functions siginificantly affect the final constructed image. For my experiments, I tried multiple combinations of weights in the following ranges:
+- Content loss weight (fixed): 1e-5 
+- Style loss: \[1e-2, 1e-5\]
+- Total variance loss: \[1e-6, 1e-8\]
+
+The *init_method* allows us to initialize the final image output with the content image, style image, or random noise. Initializing with the content image gave the most visually pleasant results.
+
+The *reconstruction_type* parameter allows us to selectively reconstruct the content image or the style components of the style image. Initially I had difficulties generating good output with the combined loss function, so I used this feature primarily to debug my code. It ensured that both my loss functions were individually working as expected, and I realized I needed to work on tuning the loss weights.
+
 ```python
 content_loss_weight = 1e-5
 style_loss_weight = 2.5e-3
