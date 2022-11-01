@@ -94,24 +94,17 @@ from utils import deprocess_image, save_animation
 ```
 
 ### Define Parameters
-<<<<<<< HEAD
-The weights of the three loss functions siginificantly affect the final combined image. For my experiments, I tried multiple combinations of weights in the following ranges:
-=======
+
 The weights of the three loss functions significantly affect the final constructed image. In my experiments, I tried multiple combinations of weights in the following ranges:
->>>>>>> refs/remotes/origin/master
+
 - Content loss weight (fixed): 1e-5 
 - Style loss: \[1e-2, 1e-5\]
 - Total variance loss: \[1e-6, 1e-8\]
 
-<<<<<<< HEAD
-The *init_method* allows us to initialize the final image output to the content image, style image, or random noise. Initializing to the content image gave the best results.
 
-The *reconstruction_type* parameter allows us to selectively reconstruct the content image or the style components of the style image. Initially I had difficulties generating good output with the combined loss function, so I used this feature primarily to debug my code. It helped me ensure that both my loss functions were individually working as expected, and I realized I needed to work on tuning the loss weights.
-=======
-The *init_method* allows us to initialize the final image output with the content image, style image, or random noise. Initializing with the content image gave the most visually pleasing results.
+The *init_method* allows us to initialize the combined image with the content image, style image, or random noise. Initializing with the content image gave the most visually pleasing results.
 
 The *reconstruction_type* parameter allows us to selectively reconstruct the content image or the style features of the style image. Initially I had difficulties generating good output with the combined loss function, so I used this feature primarily to debug my code. Training with just the content loss and the style losses helped me ensure that both loss functions were individually working as expected, and I needed to work on tuning the loss weights.
->>>>>>> refs/remotes/origin/master
 
 ```python
 content_loss_weight = 1e-5
