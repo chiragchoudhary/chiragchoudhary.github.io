@@ -18,10 +18,6 @@ margin-bottom:5px;
 figcaption {
 text-align: center
 }
-td > img {
-height: 150px;
-margin-bottom:5px;
-}
 </style>
 In the very first post on this blog, we look at application of deep learning to the area of style transfer, popularly known as Neural Style Transfer.
 This tutorial assumes basic knowledge of CNNs and the Tensorflow/Keras python libraries.
