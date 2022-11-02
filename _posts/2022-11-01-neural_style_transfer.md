@@ -15,10 +15,6 @@ p > img {
 height: 150px;
 margin-bottom:5px;
 }
-div > img {
-height: 150px;
-margin-bottom:5px;
-}
 figcaption {
 text-align: center
 }
