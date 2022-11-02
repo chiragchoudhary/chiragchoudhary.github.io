@@ -15,6 +15,17 @@ p > img {
 height: 150px;
 margin-bottom:5px;
 }
+div > img {
+height: 150px;
+margin-bottom:5px;
+}
+figcaption {
+text-align: center
+}
+td > img {
+height: 150px;
+margin-bottom:5px;
+}
 </style>
 In the very first post on this blog, we look at application of deep learning to the area of style transfer, popularly known as Neural Style Transfer.
 This tutorial assumes basic knowledge of CNNs and the Tensorflow/Keras python libraries.
@@ -28,6 +39,9 @@ The aim of Neural Style Transfer (NST) is to embed the style of an image (aka st
 <img src="{{ site.url }}/images/nst/big_ben.jpg" style="height:150">
 <img src="{{site.url}}/images/eq.png" style="height: 30px">
 <img src="{{ site.url }}/images/nst/big_ben_and_starry_night.png" style="height:150; margin-left: 0px">
+<figcaption>
+Fig. 1. Example of NST algorithm applied to a style image (left) and content image (center).
+</figcaption>
 </p>
 
 The transformed image needs to adopt the style of the style image while conserving the contents of the content image. To achieve this style transform, the algorithm represents these two properties mathematically via loss functions:
@@ -37,7 +51,7 @@ The various activation maps of a ConvNet capture different information about the
 <p align="center">
     <img src="{{site.url}}/images/nst/conv_activations_layer2.png" style="height: 250px">
     <img src="{{site.url}}/images/nst/conv_activations_layer5.png" style="height: 250px">
-    <p style="text-align:center">Fig. Visualizing the first four channels of activations of VGG layers <i>block2_conv2</i> and <i>block5_conv2</i></p>
+    <figcaption>Fig. 2. Visualizing the first four channels of activations of VGG layers <i>block2_conv2</i> and <i>block5_conv2</i>. The image passed into the model is the content image shown in Fig. 1.</figcaption>
 </p>
 This means that two images which have very similar contents should also have similar activation values for the upper layers. For an input image, we define the content as the activation values for a deeper layer of a pre-trained ConvNet. The content loss is then an L2 norm between the activations of that layer computed for the final output, and the activations of the same layer computed for our content image. The layer chosen to represent the contents of an image is a hyperparameter of our algorithm. We use a pre-trained VGG-19 to obtain activations.
 
@@ -46,6 +60,9 @@ This means that two images which have very similar contents should also have sim
 We can describe style of an image in terms of the textures, colors and patterns that exist in the image. For example, we can make some remarks about the style of this image:
 <p style="text-align:center">
     <img src="{{site.url}}/images/nst/starry_night_resize.jpg" style="height: 300px">
+    <figcaption>
+        Fig. 3. <i>The Starry Night</i> by Vincent Van Gogh, used as a style image.
+    </figcaption>
 </p>
 - blue and yellow areas are covered in circular brushstrokes
 - dark areas are covered in vertical brushstrokes
@@ -95,16 +112,17 @@ from utils import deprocess_image, save_animation
 
 ### Define Parameters
 
-The weights of the three loss functions significantly affect the final constructed image. In my experiments, I tried multiple combinations of weights in the following ranges:
+- The weights of the three loss functions significantly affect the final constructed image. In my experiments, I tried multiple combinations of weights in the following ranges:
 
-- Content loss weight (fixed): 1e-5 
-- Style loss: \[1e-2, 1e-5\]
-- Total variance loss: \[1e-6, 1e-8\]
+    - Content loss weight (fixed): 1e-5 
+    - Style loss: \[1e-2, 1e-5\]
+    - Total variance loss: \[1e-6, 1e-8\]
 
 
-The *init_method* allows us to initialize the combined image with the content image, style image, or random noise. Initializing with the content image gave the most visually pleasing results.
+- The *init_method* allows us to initialize the combined image with the content image, style image, or random noise. Initializing with the content image gave the most visually pleasing results.
 
-The *reconstruction_type* parameter allows us to selectively reconstruct the content image or the style features of the style image. Initially I had difficulties generating good output with the combined loss function, so I used this feature primarily to debug my code. Training with just the content loss and the style losses helped me ensure that both loss functions were individually working as expected, and I needed to work on tuning the loss weights.
+
+- The *reconstruction_type* parameter allows us to selectively reconstruct the content image or the style features of the style image. Initially I had difficulties generating good output with the combined loss function, so I used this feature primarily to debug my code. Training with just the content loss and the style losses helped me ensure that both loss functions were individually working as expected, and I needed to work on tuning the loss weights.
 
 ```python
 content_loss_weight = 1e-5
@@ -139,16 +157,6 @@ print(img_width, img_height)
 
 base_image = img_to_array(load_img(content_image_path, target_size=(img_height, img_width), interpolation='bicubic'))
 style_image = img_to_array(load_img(style_image_path, target_size=(img_height, img_width), interpolation='bicubic'))
-
-fig, ax = plt.subplots(1, 2, figsize=(12, 5))
-ax[0].imshow(base_image / 255.0)
-ax[0].axis('off')
-ax[0].set_title('Base Image')
-ax[1].imshow(style_image / 255.0)
-ax[1].axis('off')
-ax[1].set_title('Style Image')
-
-fig.show()
 ```
 
 ### Defining our feature extraction model
@@ -183,7 +191,7 @@ def style_loss_fn(style_img, combined_img):
 ```
 
 ### Optimizer
-I tried both Adam and SGD, but got better results with Adam in most cases. The original paper used L-BFGS.
+I tried both Adam and SGD optimizers, but got better results with Adam in most cases. The original paper used L-BFGS.
 ```python
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, beta_1=0.5)
 ```
@@ -258,7 +266,11 @@ for epoch in range(epochs + 1):
 
 Here are some examples of four different styles applied to two different content images:
 
-<p style="text-align:center;min-width:620px">
+<p style="text-align:center; min-width:620px">
+<img height="150px" width="150px" style="margin-left: 0px">
+<img src="{{ site.url }}/images/nst/autumn_road.jpg" height="250px" style="margin-left: 0px">
+<img src="{{ site.url }}/images/nst/taj_mahal.jpg" height="250px" style="margin-left: 0px">
+<br>
 <img src="{{site.url}}/images/nst/waves_resize.png" height=220px>
 <img src="{{ site.url }}/images/nst/autumn_road_and_waves.png" height="250px" style="margin-left: 0px">
 <img src="{{ site.url }}/images/nst/taj_mahal_and_waves.png" height="250px" style="margin-left: 0px">
@@ -274,6 +286,10 @@ Here are some examples of four different styles applied to two different content
 <img src="{{ site.url }}/images/nst/pink_flowers_resize.jpg" height="250px">
 <img src="{{ site.url }}/images/nst/autumn_road_and_pink_flowers.png" height="250px" style="margin-left: 0px">
 <img src="{{ site.url }}/images/nst/taj_mahal_and_pink_flowers.png" height="250px" style="margin-left: 0px">
+
+<figcaption>
+    Fig. 4. Output of NST algorithm applied to various style images (left column) and content images (top row)
+</figcaption>
 </p>
 
 ### Content Reconstruction
@@ -283,6 +299,9 @@ The following animation shows the content reconstruction when using block2_conv2
 
 <p style="text-align:center">
 <img src="{{site.url}}/images/nst/autumn_road_and_waves_content_b2c2.gif" style="height: 250px">
+<figcaption>
+Fig. 5. NST algorithm reconstructs the content image when total loss equals content loss.
+</figcaption>
 </p>
 
 ### Style Reconstruction
@@ -290,10 +309,13 @@ Similarly, if we initialize the combined image to random noise and set the total
 
 <p style="text-align:center">
 <img src="{{site.url}}/images/nst/autumn_road_and_waves_style.gif" style="height: 250px">
+<figcaption>
+Fig. 6. NST algorithm reconstructs the style features when total loss equals style loss.
+</figcaption>
 </p>
 
 ### Tuning the style weight
-By varying the style weight relative to the content weight, we can control how much style we want to add to the combined image. Here, for four separate runs, the combined image is initialized to content image, the content weight is fixed at 1e-5, and the style weight is incremented in multiples of 10 (1e-5, 1e-4, 1e-3, and 1e-2).
+By varying the style weight relative to the content weight, we can control how much style we want to add to the combined image. Here, for four separate runs, the combined image is initialized to content image, the content loss weight is fixed at 1e-5, and the style loss weight is incremented in multiples of 10 (1e-5, 1e-4, 1e-3, and 1e-2).
 
 
 <p style="text-align:center">
@@ -301,6 +323,9 @@ By varying the style weight relative to the content weight, we can control how m
 <img src="{{site.url}}/images/nst/style_3.png" style="height: 200px">
 <img src="{{site.url}}/images/nst/style_2.png" style="height: 200px">
 <img src="{{site.url}}/images/nst/style_1.png" style="height: 200px">
+<figcaption>
+Fig. 7. NST algorithm embeds more style into the combined image as content loss weight is increased.
+</figcaption>
 </p>
 
 <!--
@@ -316,3 +341,4 @@ Similarly, by changing the total variance weight, we can control how smooth we w
 1. [Deep Generative Learning book](https://learning.oreilly.com/library/view/generative-deep-learning/)
 2. [The AI Epiphany NST video series](https://youtube.com/playlist?list=PLBoQnSflObcmbfshq9oNs41vODgXG-608) (highly recommended)
 3. [Keras official NST example](https://keras.io/examples/generative/neural_style_transfer/)
+4. Style/Content images from [RawPixel](https://www.rawpixel.com/)
