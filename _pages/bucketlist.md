@@ -18,3 +18,4 @@ redirect_from: /bucket-list/
 9. See a volcano
 10. Learn Spanish
 11. Publish a research paper in ML
+12. Traveling to Antarctica
